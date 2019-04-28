@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Stratego.Fsharp.Logic", "Stratego.Fsharp.Logic\Stratego.Fsharp.Logic.fsproj", "{59E1B0A2-CD78-4D2A-9015-CD2D663160B0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stratego.CSharp.Console.Runner", "Stratego.CSharp.Console.Runner\Stratego.CSharp.Console.Runner.csproj", "{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59E1B0A2-CD78-4D2A-9015-CD2D663160B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59E1B0A2-CD78-4D2A-9015-CD2D663160B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59E1B0A2-CD78-4D2A-9015-CD2D663160B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59E1B0A2-CD78-4D2A-9015-CD2D663160B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {50EDB127-1C99-4FE8-A4A0-7A5F929066D1}
+	EndGlobalSection
+EndGlobal
