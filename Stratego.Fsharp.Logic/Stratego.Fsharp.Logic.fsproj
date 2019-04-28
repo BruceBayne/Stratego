@@ -7,7 +7,7 @@
     <ItemGroup>
         <Compile Include="List.fs" />
         <Compile Include="Types.fs" />
-        <Compile Include="Test.fs" />
+        <Compile Include="Some.fs" />
         <Compile Include="StrategoLogic.fs" />
     </ItemGroup>
 

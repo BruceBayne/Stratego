@@ -7,6 +7,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Stratego.Fsharp.Logic", "St
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Stratego.CSharp.Console.Runner", "Stratego.CSharp.Console.Runner\Stratego.CSharp.Console.Runner.csproj", "{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UnitTestProject1", "UnitTestProject1\UnitTestProject1.fsproj", "{EECDB8D7-4100-48FB-BA1B-C41E58A11B9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FF73A99-2457-43E3-8DE8-D91BB6D3BFD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EECDB8D7-4100-48FB-BA1B-C41E58A11B9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EECDB8D7-4100-48FB-BA1B-C41E58A11B9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EECDB8D7-4100-48FB-BA1B-C41E58A11B9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EECDB8D7-4100-48FB-BA1B-C41E58A11B9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

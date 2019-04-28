@@ -8,11 +8,9 @@ namespace Stratego.CSharp.Console.Runner
         static void Main(string[] args)
         {
 
-	        var s = Test.someFunc();
-
-
-			
-			
+            
+            
+            
 
         }
     }

@@ -8,7 +8,7 @@ open System
 module StrategoLogic =
   
 
- let some = 
+ let private FigureWithCount = 
   
   let initialConfiguration = 
    [ 
@@ -52,23 +52,82 @@ module StrategoLogic =
 
  let InitializeGame () = 
   let boardArray = Array2D.init 10 10
-  let z = boardArray (fun x y -> FigureSlot.Figure { Rank = Scout; Owner = Blue;  })
+  let z = boardArray (fun x y -> FigureSlot.Figure { Rank = Scout; Owner = Blue; })
  
   let board = {Field = z}
-  let gf = Turn (Red,board)
+  let gf = CurrentGameState (Red,board)
   gf
   
 
 
- let CalculateTurn player deskState= 
+
+ let GetAvailableMovements gameField  (figurePosition:FigurePosition ): AvailableDirections=
+  let newPosition = figurePosition.Forward
+ 
+
   
-  Turn(player,deskState)
+  
+  
   
 
+  //Check Forward
+  //Check Back
+  //Check Right
 
- let MakeMove (gameInformation:GameInformation) (turnInfo:TurnInformation) =   
-  match gameInformation with
-  | Turn (player,field) -> CalculateTurn player field   
+  AvailableDirections.Forward ||| AvailableDirections.Left
+
+ 
+
+ let IntOrNone (x:string) =
+  Some 5
+
+ let StringOrNone (x:int)=
+  Some "foo"
+  
+
+ let (>>=) m f  =
+   match m with
+   | None -> 
+       None
+   | Some x -> 
+       x |> f
+
+ let bind = (>>=)
+  
+ let MakeMove (gameField:GameField) (moveIntent : MoveIntent) : MoveResult =     
+  
+
+  
+  //let moveIntent.CurrentPosition.NewPosition moveIntent.Direction  
+  let x,y = moveIntent.CurrentPosition.Get  // "deconstruct"  
+  
+
+  let matchResult = 
+   match gameField.Field.[x,y] with 
+   | Empty  -> TurnNotAllowed NoFigureToMove
+   | Obstacle -> TurnNotAllowed ObstaclesCantMove
+   | Figure f -> TurnNotAllowed NotImplemented
+
+  matchResult
+  //gameField.Field.[x,y] <- Empty;
+    
+
+
+
+  //Ok(1)
+  //Error(2)  
+  //TurnSuccess gameField
+  //возвращаем Ок(новый стейт) или ЕрроКод  
+  //умерла фигура
+  // новый стейт 
+  //Чекнуть непроходимые позиции (типа воды, или своих фигур, аут оф баундс карты)
+  //Чекнуть 
+  //Turn(player,deskState)
+  //getPlayer
+  //"5" |> IntOrNone >>= StringOrNone
+  
+
+ 
  
 
  //let MakeMove (gameInformation:GameInformation) (turnInfo:TurnInformation) =   
