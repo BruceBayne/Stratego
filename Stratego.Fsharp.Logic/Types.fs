@@ -1,6 +1,4 @@
 module StrategoTypes 
- open Utils
- 
   
  type Player = Red | Blue
  
@@ -21,7 +19,7 @@ module StrategoTypes
       | Mine      
   
     
-    [<StructuralEquality;StructuralComparison>] 
+ [<StructuralEquality;StructuralComparison>] 
  type FigurePosition =
      private | FigurePosition of int * int
 

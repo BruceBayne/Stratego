@@ -2,26 +2,26 @@
 
 namespace Stratego.Logic 
 open StrategoTypes
-open Utils
+open XUtils
 
 
 module StrategoLogic =
   
- let private initialConfiguration = 
-   [ 
-    {|Rank=Flag; Count=1|}; 
-    {|Rank=Marshal ;   Count=1|};
-    {|Rank=General ;   Count=1|}; 
-    {|Rank=Colonel ;   Count=2|};
-    {|Rank=Major   ;   Count=3|};
-    {|Rank=Captain ;   Count=4|};    
-    {|Rank=Leitenant ; Count=4|};
-    {|Rank=Sergeant ;  Count=4|};        
-    {|Rank=Scout   ;   Count=8|};
-    {|Rank=Miner   ;   Count=8|};
-    {|Rank=Spy   ;     Count=1|};
-    {|Rank=Mine   ;    Count=6|};
-   ]  
+ //let private initialConfiguration = 
+ //  [ 
+ //   {|Rank=Flag; Count=1|}; 
+ //   {|Rank=Marshal ;   Count=1|};
+ //   {|Rank=General ;   Count=1|}; 
+ //   {|Rank=Colonel ;   Count=2|};
+ //   {|Rank=Major   ;   Count=3|};
+ //   {|Rank=Captain ;   Count=4|};    
+ //   {|Rank=Leitenant ; Count=4|};
+ //   {|Rank=Sergeant ;  Count=4|};        
+ //   {|Rank=Scout   ;   Count=8|};
+ //   {|Rank=Miner   ;   Count=8|};
+ //   {|Rank=Spy   ;     Count=1|};
+ //   {|Rank=Mine   ;    Count=6|};
+ //  ]  
  
    
 
@@ -33,12 +33,12 @@ module StrategoLogic =
   let figureArray = 
    array2D [            
              [
-               Figure {Owner= Blue; Rank=Flag }
                Figure {Owner= Blue; Rank=Spy }
+               Figure {Owner= Blue; Rank=Flag }
              ];              
              [
-                 Figure {Owner= Red; Rank=Flag }
                  Figure {Owner= Red; Rank=Spy }
+                 Figure {Owner= Red; Rank=Flag }
              ]; 
 
            ]           
@@ -58,45 +58,58 @@ module StrategoLogic =
 
  
 
-
- let private makeActualMove (slots : FieldSlot[,]) (position:FigurePosition) rule =   
-  Ok (JustMoveCase {OldPosition= position; NewPosition=position} )
-
-
- let private generateLineSeq (position:FigurePosition) =
-  seq {
-   yield position
-   }
- 
-
  let private fbrl (position:FigurePosition) =
   seq {
-  yield position
+   
+   let (x,y)= position.Get
+
+   let emit (nx:FigurePosition option)= 
+    if(nx.IsSome) then
+     seq {yield nx.Value}
+     else
+     seq<FigurePosition>[] 
+
+     
+   yield! emit (FigurePosition.Create (x+1, y))
+   yield! emit (FigurePosition.Create (x-1, y))
+   yield! emit (FigurePosition.Create (x, y+1))
+   yield! emit (FigurePosition.Create (x, y-1))
+   
   }
+
+
+
 
  let private calcMoves (slots : FieldSlot[,]) (position:FigurePosition) rule =     
   let s=seq<FigurePosition>[]
 
   let (x,y) = position.Get
-  
+  let fbrlPos= fbrl position
   match (slots.[x,y]) with
    | Figure movingFigure -> 
                 match rule with 
-                 | LineMove -> Ok (generateLineSeq position)
-                 | AlwaysStand -> Ok (seq<FigurePosition>[]) //empty
-                 | ForwardBackRightLeft -> 
-                             let ((x1,y1),(x2,y2)) = (1,2),(3,4)
-                             match slots.[x1,x2] with 
-                               |Empty -> 
-                                 Ok (seq {
-                                  yield! s
-                                 })
-                               | Obstacle ->Ok s
-                               | Figure targetCellFigure 
-                                  when movingFigure.Owner <> targetCellFigure.Owner -> Ok s
+                 | LineMove -> Ok(s)
+                 | AlwaysStand -> Ok (s) //empty
+                 | ForwardBackRightLeft  -> Ok(seq{
+                 
+                  for some in fbrlPos do
+                   let (nx,ny)=some.Get
+                   match slots.[nx,ny] with                    
+                   | Figure f -> yield some
+                   | c -> c|> ignore
+                 
+                 })
+                                             
+                    
    | _ -> Error NoFigureToMove
 
-
+   //|Empty -> 
+   //    Ok (seq {
+   //     yield! s
+   //    })
+   //  | Obstacle ->Ok s
+   //  | Figure targetCellFigure 
+   //     when movingFigure.Owner <> targetCellFigure.Owner -> Ok s
   
   
 
@@ -126,10 +139,7 @@ module StrategoLogic =
   if (gameInfo.CurrentPlayer<> moveIntent.Player) then
     CurrentPlayerError
    else  
-         
-   //check figure type  for desired move type (Flag cant move e.t.c)
-   //   
-    NotImplemented
+   NotImplemented
 
   
   
