@@ -2,135 +2,134 @@
 
 namespace Stratego.Logic 
 open StrategoTypes
-open System
+open Utils
 
 
 module StrategoLogic =
   
-
- let private FigureWithCount = 
-  
-  let initialConfiguration = 
+ let private initialConfiguration = 
    [ 
-    {|Rank=Flag ;      Count=1|} 
+    {|Rank=Flag; Count=1|}; 
     {|Rank=Marshal ;   Count=1|};
     {|Rank=General ;   Count=1|}; 
     {|Rank=Colonel ;   Count=2|};
     {|Rank=Major   ;   Count=3|};
-    {|Rank=Captain ;   Count=4|};
-    {|Rank=Leitenant ; Count=5|};
-    {|Rank=Sergeant ;  Count=6|};
-    {|Rank=Scout   ;   Count=7|};
+    {|Rank=Captain ;   Count=4|};    
+    {|Rank=Leitenant ; Count=4|};
+    {|Rank=Sergeant ;  Count=4|};        
+    {|Rank=Scout   ;   Count=8|};
     {|Rank=Miner   ;   Count=8|};
     {|Rank=Spy   ;     Count=1|};
-    {|Rank=Mine   ;    Count=9|};
-   ]
+    {|Rank=Mine   ;    Count=6|};
+   ]  
+ 
+   
+
+ let private turnBased = List.map (fun x-> (x,ForwardBackRightLeft)) [Marshal; General; Colonel; Major;Captain; Leitenant; Sergeant ;Miner; Spy] 
+ let private allowedTurns = List.sort ((Scout, LineMove) :: [(Flag, AlwaysStand); (Mine, AlwaysStand)] @ turnBased) |> Map.ofList
+ let private gameRules = {StartPlayer = Player.Blue; AllowedTurns= allowedTurns; FiguresStayRevealed=true; FieldSize=(10,10) }
+
+ let StartNewGame() = 
+  let figureArray = 
+   array2D [            
+             [
+               Figure {Owner= Blue; Rank=Flag }
+               Figure {Owner= Blue; Rank=Spy }
+             ];              
+             [
+                 Figure {Owner= Red; Rank=Flag }
+                 Figure {Owner= Red; Rank=Spy }
+             ]; 
+
+           ]           
+  {CurrentPlayer= gameRules.StartPlayer; GameField = {Field=figureArray}}
+
+ 
+ let (|OutOfGameFieldBounds|_|) i =  
+  let (x,y)=i
+  if x < 0 || y<0 || i > gameRules.FieldSize then Some(i) else None
+
+ 
+ let private checkDeskBounds (movePosition:FigurePosition) = 
+  match movePosition.Get with
+   | OutOfGameFieldBounds _ -> Error (PositionOutOfBounds)
+   | _ -> Ok movePosition
+
+
+ 
+
+
+ let private makeActualMove (slots : FieldSlot[,]) (position:FigurePosition) rule =   
+  Ok (JustMoveCase {OldPosition= position; NewPosition=position} )
+
+
+ let private generateLineSeq (position:FigurePosition) =
+  seq {
+   yield position
+   }
+ 
+
+ let private fbrl (position:FigurePosition) =
+  seq {
+  yield position
+  }
+
+ let private calcMoves (slots : FieldSlot[,]) (position:FigurePosition) rule =     
+  let s=seq<FigurePosition>[]
+
+  let (x,y) = position.Get
   
+  match (slots.[x,y]) with
+   | Figure movingFigure -> 
+                match rule with 
+                 | LineMove -> Ok (generateLineSeq position)
+                 | AlwaysStand -> Ok (seq<FigurePosition>[]) //empty
+                 | ForwardBackRightLeft -> 
+                             let ((x1,y1),(x2,y2)) = (1,2),(3,4)
+                             match slots.[x1,x2] with 
+                               |Empty -> 
+                                 Ok (seq {
+                                  yield! s
+                                 })
+                               | Obstacle ->Ok s
+                               | Figure targetCellFigure 
+                                  when movingFigure.Owner <> targetCellFigure.Owner -> Ok s
+   | _ -> Error NoFigureToMove
+
+
+  
+  
+
+ let private getMovingRule (slots : FieldSlot[,]) (position:FigurePosition) =
+  let (x,y) = position.Get
+  match slots.[x,y] with 
+     | Empty -> Error NoFigureToMove
+     | Obstacle -> Error ObstaclesCantMove
+     | Figure f  -> match Map.tryFind f.Rank gameRules.AllowedTurns  with 
+                     | Some rule -> Ok rule
+                     | None -> Error NoFigureMovementInformation
     
 
-  let shuffled = List.shuffle initialConfiguration  
- 
-  //0,1,2,3 6,7,8,9
-  let i = Array2D.init 10 10 (fun i i2 -> 0)
-  //let z = i (fun x y -> { Rank = Scout; Owner = Blue })
-  
-  
-  let func=Array2D.map (fun i i2 -> 0) 
-
-
-
-
-  //let x=List.map (fun e-> 1) z
-
-
-  let result = List.map (fun element-> 0) initialConfiguration
-  result
- 
-
- 
-
-
- let InitializeGame () = 
-  let boardArray = Array2D.init 10 10
-  let z = boardArray (fun x y -> FigureSlot.Figure { Rank = Scout; Owner = Blue; })
- 
-  let board = {Field = z}
-  let gf = CurrentGameState (Red,board)
-  gf
-  
-
-
-
- let GetAvailableMovements gameField  (figurePosition:FigurePosition ): AvailableDirections=
-  let newPosition = figurePosition.Forward
- 
-
-  
-  
-  
-  
-
-  //Check Forward
-  //Check Back
-  //Check Right
-
-  AvailableDirections.Forward ||| AvailableDirections.Left
-
- 
-
- let IntOrNone (x:string) =
-  Some 5
-
- let StringOrNone (x:int)=
-  Some "foo"
-  
-
- let (>>=) m f  =
-   match m with
-   | None -> 
-       None
-   | Some x -> 
-       x |> f
-
- let bind = (>>=)
-  
- let MakeMove (gameField:GameField) (moveIntent : MoveIntent) : MoveResult =     
-  
-
-  
-  //let moveIntent.CurrentPosition.NewPosition moveIntent.Direction  
-  let x,y = moveIntent.CurrentPosition.Get  // "deconstruct"  
-  
-
-  let matchResult = 
-   match gameField.Field.[x,y] with 
-   | Empty  -> TurnNotAllowed NoFigureToMove
-   | Obstacle -> TurnNotAllowed ObstaclesCantMove
-   | Figure f -> TurnNotAllowed NotImplemented
-
-  matchResult
-  //gameField.Field.[x,y] <- Empty;
-    
-
-
-
-  //Ok(1)
-  //Error(2)  
-  //TurnSuccess gameField
-  //возвращаем Ок(новый стейт) или ЕрроКод  
-  //умерла фигура
-  // новый стейт 
-  //Чекнуть непроходимые позиции (типа воды, или своих фигур, аут оф баундс карты)
-  //Чекнуть 
-  //Turn(player,deskState)
-  //getPlayer
-  //"5" |> IntOrNone >>= StringOrNone
-  
-
  
  
+ 
+ let public CalculateAvailableMoves(slots : FieldSlot[,]) (position:FigurePosition) =   
+ 
+  let _calcMoves  = calcMoves slots position   
+  let _getMovingRule = getMovingRule slots
+  position |> checkDeskBounds 
+           >>= _getMovingRule 
+           >>= _calcMoves
+           
 
- //let MakeMove (gameInformation:GameInformation) (turnInfo:TurnInformation) =   
- // match gameInformation with
- // | Turn (player,field) -> CalculateTurn player field
- // | Winner p -> gameInformation
+ let MakeMove (gameInfo : GameInformation) (moveIntent:MoveIntent) =       
+  if (gameInfo.CurrentPlayer<> moveIntent.Player) then
+    CurrentPlayerError
+   else  
+         
+   //check figure type  for desired move type (Flag cant move e.t.c)
+   //   
+    NotImplemented
+
+  
+  

@@ -85,14 +85,14 @@
     "FSharp.Core/4.6.2": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-LKE5pmENO+YxcMI2tNEPK22SpOBtLdWjd/3pDkBC/L8cXM+We99P9kyoyY2aT85o8i7Xtt4SQJnUhMg7klm3tQ==",
+      "sha512": "sha512-/waJ3a7u7MjFOGnXOfokbG1N1FH7VCmP3Fw1tJ8Q75kIj60LYBL3eYzab9hDimL5E21uhQ/1wf04M3dRAYemlw==",
       "path": "fsharp.core/4.6.2",
       "hashPath": "fsharp.core.4.6.2.nupkg.sha512"
     },
     "Microsoft.NETCore.Platforms/1.1.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-+wLE7Ilwfe3TvUEAVyrHkGlqd69CNsCcqiFBM70hK3w9X15R03mKnRibweqmeRSrGE2QDBosFTJO2mzBn0UOFQ==",
+      "sha512": "sha512-m16BB/VhoBT68I/ybIisbjryEiHrGrd9803KXCqdWkeRCE+Jda0FqVaX7c3kGDtdb2lgj5zwaT4io3gjc0UZsQ==",
       "path": "microsoft.netcore.platforms/1.1.0",
       "hashPath": "microsoft.netcore.platforms.1.1.0.nupkg.sha512"
     },

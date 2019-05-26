@@ -1,8 +1,10 @@
 module StrategoTypes 
-
+ open Utils
+ 
+  
  type Player = Red | Blue
  
- type MoveErrorCodes = NotImplemented | NoFigureToMove | ObstaclesCantMove | PositionOutOfBounds
+ type TurnErrorInfo = NotImplemented | CurrentPlayerError | NoFigureToMove | ObstaclesCantMove | PositionOutOfBounds | NoFigureMovementInformation
  
  type FigureRank =
       | Flag
@@ -18,7 +20,8 @@ module StrategoTypes
       | Spy
       | Mine      
   
-
+    
+    [<StructuralEquality;StructuralComparison>] 
  type FigurePosition =
      private | FigurePosition of int * int
 
@@ -37,40 +40,72 @@ module StrategoTypes
          this |> fun (FigurePosition (x,y)) -> (x,y)     
 
 
-
  type Figure = {  
   Owner : Player
-  Rank : FigureRank
-
+  Rank : FigureRank  
  }
  
- 
- type FigureSlot =  
+ type FieldSlot =  
  | Empty 
  | Figure of Figure
  | Obstacle
 
-
  type GameField =  {
-  Field : FigureSlot[,]   
+  Field : FieldSlot[,]   
+ }
+
+
+
+ type GameInformation ={
+  CurrentPlayer: Player
+  GameField : GameField
  }
 
  
- type GameInformation =  
- | CurrentGameState of Player * GameField 
- | Winner of Player
  
 
- type MoveResult = 
-  | FigureDead of Figure * GameField
-  | TurnSuccess of GameField * Figure * FigurePosition
-  | TurnNotAllowed of MoveErrorCodes
+ type MoveInfo = {
+  OldPosition: FigurePosition
+  NewPosition : FigurePosition
+ }
+ 
+ //FigureDies of FigurePosition * FigureRank|  BothDies of FigurePosition* FigurePosition * FigureRank
+ 
+ 
+ type KillInfo = IAmKiller | MyFigureDead | BothDead
+ 
+
+ type TurnSuccessInfo = 
+ |JustMoveCase of MoveInfo
+ |DeathCase of KillInfo * FigureRank
+  
+ type TurnKillSomebodyInfo = 
+ | OneFigure of FigurePosition 
+ | TwoFigures of FigurePosition * FigurePosition 
+ 
 
 
+ //type MoveDirection = Forward | Back | Left | Right   
+ // [<System.FlagsAttribute>]
+ // type AvailableDirections = Forward = 1 |  Back = 2 | Left = 4 | Right = 8 
+
+  type RuleAllowedTurns =  | AlwaysStand | ForwardBackRightLeft | LineMove
+  
+  type AllowedTurns = FigureRank * RuleAllowedTurns   
+
+ type GameRules = {
+ StartPlayer : Player
+ AllowedTurns : Map<FigureRank,RuleAllowedTurns>
+ FiguresStayRevealed : bool
+ FieldSize :  int*int
+ }
 
  
- type MoveDirection = Forward | Left | Right
- [<System.FlagsAttribute>]
- type AvailableDirections = Forward = 1 | Left = 2 | Right = 4 
+ 
+  type MoveIntent = {
+   Player :Player
+   MovingFrom: FigurePosition
+   MoveTo : FigurePosition
+  }
+ 
 
- type MoveIntent = {CurrentPosition: FigurePosition ; Direction: MoveDirection}
