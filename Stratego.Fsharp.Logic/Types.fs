@@ -67,20 +67,19 @@ module StrategoTypes
   NewPosition : FigurePosition
  }
  
- //FigureDies of FigurePosition * FigureRank|  BothDies of FigurePosition* FigurePosition * FigureRank
  
  
- type KillInfo = IAmKiller | MyFigureDead | BothDead
- 
-
- type TurnSuccessInfo = 
- |JustMoveCase of MoveInfo
- |DeathCase of KillInfo * FigureRank
+ type KillInfo = IAmKiller  | MyFigureDead  | BothDead
   
- type TurnKillSomebodyInfo = 
- | OneFigure of FigurePosition 
- | TwoFigures of FigurePosition * FigurePosition 
+ type TurnSuccessInfo =  
+ |JustMoveCase of MoveInfo
+ |DeathCase of MoveInfo * KillInfo * FigureRank
  
+ 
+ type ExternalTurnResult = {
+  GameInfo : GameInformation 
+  TurnInfo : TurnSuccessInfo
+  }
 
 
  //type MoveDirection = Forward | Back | Left | Right   
