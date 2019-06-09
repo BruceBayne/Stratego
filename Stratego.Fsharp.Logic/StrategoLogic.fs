@@ -103,6 +103,28 @@ module StrategoLogic =
    yield! Seq.collect (fun x-> Option.toList x) generatedMoves   
   }
 
+ 
+ let private getLineMove (slots:FieldSlot[,]) (position:FigurePosition) =
+  
+  let fieldSizeX,fieldSizeY= gameRules.FieldSize
+  let (x,y)= position.Get   
+  
+  let xToRight=[x..fieldSizeX]
+  let xToLeft=[x..0]
+  
+  //xToRight while they can be created and ONLY empty in slots for that position -> add to seq
+  //xToLeft  while they can be created and ONLY empty in slots for that position -> add to seq
+  
+
+
+  seq {   
+   
+   
+
+   let generatedMoves=[  
+   ]  
+   yield! Seq.collect (fun x-> Option.toList x) generatedMoves   
+  }
 
 
 
@@ -114,7 +136,7 @@ module StrategoLogic =
   match (slots.[x,y]) with
    | Figure movingFigure -> 
         match rule with 
-         | LineMove -> Ok(Seq.empty)
+         | LineMove -> Ok(getLineMove slots position)
          | AlwaysStand -> Ok (Seq.empty)
          | ForwardBackRightLeft  -> Ok(seq{         
           let fbrlPos= getFrontBackLeftRightMove position                    
