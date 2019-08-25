@@ -9,7 +9,9 @@ namespace Stratego.CSharp.Console.Runner
     {
         private static void Main(string[] args)
         {
-            var x = StrategoLogic.StartPredefinedGame();
+            var x = FieldGenerator.StartPredefinedGame();
+
+
             
             var fso = StrategoTypes.FigurePosition.Create(9, 9);
             
@@ -20,14 +22,11 @@ namespace Stratego.CSharp.Console.Runner
 
             var tsi=StrategoLogic.MakeMove(x,new StrategoTypes.MoveIntent(StrategoTypes.Player.Blue, fso.Value, moves.First()));
 
+
             
             
           //  var invalid = StrategoLogic.CalculateAvailableMoves(x.GameField.Field, fso.Value);
-
-
-
           
-
             
         }
 

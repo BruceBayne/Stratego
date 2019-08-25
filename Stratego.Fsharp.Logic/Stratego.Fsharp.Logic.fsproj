@@ -14,8 +14,10 @@
         <Compile Include="Utils.fs" />
         <Compile Include="List.fs" />
         <Compile Include="Types.fs" />
+        <Compile Include="Game.fs" />
         <Compile Include="Some.fs" />
         <Compile Include="StrategoLogic.fs" />
+        <Compile Include="FieldGenerator.fs" />
     </ItemGroup>
 
 </Project>

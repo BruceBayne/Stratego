@@ -1,11 +1,4 @@
 ﻿module XUtils
-
-//let (>>=) m f  =
-//  match m with
-//  | Error x -> 
-//      x
-//  | Ok x -> 
-//      x |> f
  
 let (>>=) m f  =
  Result.bind f m

@@ -57,7 +57,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: d4b5b41a65f29da45930b58344106dc4, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -329,7 +329,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   figureName: {fileID: 7041842548960085145}
   meshRenderer: {fileID: 3510021238396976120}
-  GlassMaterial: {fileID: 2100000, guid: 79d5d12d44ddffd4fbd463d4962a3e5e, type: 2}
+  GlassMaterial: {fileID: 2100000, guid: 0fa4ac42191a27743b8af0fdac86fafc, type: 2}
+  SelectedMat: {fileID: 2100000, guid: 79d5d12d44ddffd4fbd463d4962a3e5e, type: 2}
 --- !u!65 &1521913016194167807
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -1,103 +1,14 @@
 ﻿namespace Stratego.Logic 
 open StrategoTypes
 open XUtils
-
+open Game
 
 module StrategoLogic =
  
  
-  //anonymous types is BROKEN f*ck  
- type  initialGameConfig =  {
-  Count:int
-  Rank :FigureRank
- }
-
-
- 
-
- let private config = [
-                {Rank=Flag;Count=1};
-                {Rank=Marshal;Count=1};
-                {Rank=Marshal;Count=1};
-                {Rank=General;Count=1};
-                {Rank=Colonel;Count=2};
-                {Rank=Major;Count=3};
-                {Rank=Captain;Count=4};
-                {Rank=Leitenant;Count=4};
-                {Rank=Sergeant;Count=4};
-                {Rank=Scout;Count=8};
-                {Rank=Miner;Count=8};
-                {Rank=Spy;Count=1};
-                {Rank=Mine;Count=6};
-              ]
-
- 
-
    
 
- let private regularTurnFigures = List.map (fun x-> (x,ForwardBackRightLeft)) [Marshal; General; Colonel; Major;Captain; Leitenant; Sergeant ;Miner; Spy] 
- let private specialTurnFigures = List.sort ((Scout, LineMove) :: [(Flag, AlwaysStand); (Mine, AlwaysStand)] @ regularTurnFigures) |> Map.ofList
- let private gameRules = {
-                            StartPlayer = Player.Blue; 
-                            AllowedTurns= specialTurnFigures; 
-                            FiguresStayRevealed=true; FieldSize=(10,10) 
-                         }
- 
 
-
-
- let private randomRefillSlots : FieldSlot[,] = 
-  
-  let (x,y)=gameRules.FieldSize;
-  let field=Array2D.create x y (Empty)    
-  
-  Seq.iter (fun x-> 
-                   field.[0,1] <- Figure ({Rank=x.Rank; Owner= Red})
-                   ()) config
-
-  field
-
- 
- let CreateEmptyField() =   
-   let emptyGen=Seq.map (fun _-> Empty)   
-   let (maxSizeX,maxSizeY) = gameRules.FieldSize
-   Seq.map (fun _-> emptyGen [1..maxSizeX]) [1..maxSizeY] |> array2D  
- 
-
- let StartPredefinedGame() =   
-  
-  let field=CreateEmptyField()
-
-  field.[0,0] <- Figure ({Rank= Flag; Owner=Blue})
-  field.[1,0] <- Figure ({Rank= Scout; Owner=Blue})
-  field.[2,0] <- Figure ({Rank= Spy; Owner=Blue})
-  field.[3,0] <- Figure ({Rank= Colonel; Owner=Blue})
-  field.[4,0] <- Figure ({Rank= Mine; Owner=Blue})
-  field.[5,0] <- Figure ({Rank= Miner; Owner=Blue})
-  field.[9,9] <- Figure ({Rank= Scout; Owner=Blue})
-  
-  field.[2,3] <- Obstacle
-  field.[2,4] <- Obstacle
-  field.[3,3] <- Obstacle
-  field.[3,4] <- Obstacle
-
-  field.[6,3] <- Obstacle
-  field.[6,4] <- Obstacle
-  field.[7,3] <- Obstacle
-  field.[7,4] <- Obstacle
-
-
-
-
-  field.[0,9] <- Figure ({Rank= Flag; Owner=Red})
-  field.[1,9] <- Figure ({Rank= Scout; Owner=Red})
-  field.[2,9] <- Figure ({Rank= Spy; Owner=Red})
-  field.[3,9] <- Figure ({Rank= Colonel; Owner=Red})
-  field.[4,9] <- Figure ({Rank= Mine; Owner=Red})
-  field.[5,9] <- Figure ({Rank= Miner; Owner=Red})
-             
-  
-  {CurrentPlayer= gameRules.StartPlayer; GameField = {Field=field}}
  
  
     
@@ -126,7 +37,7 @@ module StrategoLogic =
  
  let private getMovesForScout (slots:FieldSlot[,]) (position:FigurePosition) =
   
-  let fieldSizeX,fieldSizeY= gameRules.FieldSize
+  let fieldSizeX,fieldSizeY= GameRules.FieldSize
   let (currentX,currentY)= position.Get   
   
   let allPossibleXToEnd=[currentX+1..fieldSizeX]
@@ -143,11 +54,11 @@ module StrategoLogic =
   
      
 
-  let xFunc = fun localX -> FigurePosition.Create(localX,currentY)
-  let yFunc = fun localY -> FigurePosition.Create(currentX,localY)
+  let xFunc localX = FigurePosition.Create(localX,currentY)  
+  let yFunc localY = FigurePosition.Create(currentX,localY)
   
-  let moves xOrY seq  = Seq.map (fun x-> xOrY x) seq
-                     |> Seq.collect (fun o -> Option.toList o)
+  let moves xOrY seq  = Seq.map xOrY seq
+                     |> Seq.collect Option.toList
                      |> Seq.takeWhile (fun (t : FigurePosition)->
                       let (nx,ny) = t.Get
                       match slots.[nx,ny] with 
@@ -197,7 +108,7 @@ module StrategoLogic =
   match slots.[x,y] with 
      | Empty -> Error NoFigureToMove
      | Obstacle -> Error ObstaclesCantMove
-     | Figure f  -> match Map.tryFind f.Rank gameRules.AllowedTurns  with 
+     | Figure f  -> match Map.tryFind f.Rank GameRules.AllowedTurns  with 
                      | Some rule -> Ok rule
                      | None -> Error NoFigureMovementInformation
     
@@ -220,10 +131,10 @@ module StrategoLogic =
  
  let private (|SourceStronger|SourceWeaker|SamePower|) (source: Figure,destination:Figure) =   
   
-  if source.Rank   = Marshal && destination.Rank= Spy then SourceWeaker else
-  if destination.Rank = Mine && source.Rank<> Miner then SourceWeaker else
-  if destination.Rank =  Flag  then SourceStronger else    
-  if source.Rank > destination.Rank then SourceStronger 
+  if source.Rank = Marshal && destination.Rank = Spy  then SourceStronger
+  elif source.Rank = Spy && destination.Rank=Marshal then SourceStronger
+  elif source.Rank = Miner && destination.Rank = Mine then SourceStronger    
+  elif source.Rank > destination.Rank then SourceStronger 
   elif source.Rank < destination.Rank then SourceWeaker
   else
   SamePower

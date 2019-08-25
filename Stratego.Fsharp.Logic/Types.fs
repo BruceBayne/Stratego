@@ -6,19 +6,21 @@ module StrategoTypes
  type TurnErrorInfo = NotImplemented | CurrentPlayerError | NoFigureToMove | ObstaclesCantMove | PositionOutOfBounds | NoFigureMovementInformation
  
  type FigureRank =
-      | Flag
-      | Marshal
-      | General
-      | Colonel
-      | Major
-      | Captain
-      | Leitenant
-      | Sergeant
-      | Scout
-      | Miner
+      | Flag     
       | Spy
-      | Mine      
-  
+      | Miner
+      | Scout
+      | Sergeant
+      | Leitenant
+      | Captain
+      | Major
+      | Colonel
+      | General      
+      | Marshal
+      | Mine
+      
+      
+        
     
  [<StructuralEquality;StructuralComparison>] 
  type FigurePosition =
@@ -83,10 +85,20 @@ module StrategoTypes
  type TurnSuccessInfo =  
  |JustMoveCase of MoveInfo
  |DeathCase of MoveInfo * KillInfo * FigureRank
+  
+  //C# jerk off  
   member this.TryGetJustMoveCase( [<Out>] result : MoveInfo byref ) =
    match this with
    | JustMoveCase f ->
        result <-f
+       true
+   | _ -> false
+
+   //C# jerk off  
+   member this.TryGetDeathCase([<Out>] result : (MoveInfo*KillInfo*FigureRank) byref) =
+   match this with
+   | DeathCase (m,f,k) ->
+       result <- (m,f,k)       
        true
    | _ -> false
       
@@ -120,5 +132,7 @@ module StrategoTypes
    MovingFrom: FigurePosition
    MoveTo : FigurePosition
   }
+ 
+ 
  
 

@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Assets;
-using Microsoft.FSharp.Core;
+﻿using Assets;
+using Assets.Prefabs;
 using Stratego.Logic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -14,17 +11,12 @@ public class BoardLogic : MonoBehaviour, IPointerClickHandler
     [SerializeField] private GameObject figuresRoot;
     [SerializeField] private Text currentPlayer;
 
-
-
-    [SerializeField] private GameObject bottomLeftCorner;
-
-
+    
     public static StrategoTypes.GameInformation CurrentGame;
 
 
-    public static Figure CurrentSelectedFigure;
-
-
+    public static GameObject FigurePrefab { get; private set; }
+    
 
     public static void Log(object o)
     {
@@ -37,43 +29,51 @@ public class BoardLogic : MonoBehaviour, IPointerClickHandler
 
     }
 
-    void RepaintFigures()
+   public void RepaintFigures()
     {
 
         figuresRoot.transform.DestroyChild();
         currentPlayer.text = CurrentGame.CurrentPlayer.ToString();
 
-        for (int x = 0; x < CurrentGame.GameField.Field.GetLength(0); x++)
+        for (var x = 0; x < CurrentGame.GameField.Field.GetLength(0); x++)
         {
-            for (int y = 0; y < CurrentGame.GameField.Field.GetLength(1); y++)
+            for (var y = 0; y < CurrentGame.GameField.Field.GetLength(1); y++)
             {
+
                 var slot = CurrentGame.GameField.Field[x, y];
-                SpawnFigureAt(slot,x,y);
+
+                if(slot.IsEmpty)
+                    continue;
+                
+                var figure = Instantiate(figurePrefab, figuresRoot.transform, false);
+                figure.GetComponent<Figure>().Setup(GetFieldSlotWithPos(x,y));
+
             }
         }
         
     }
 
-    private void SpawnFigureAt(StrategoTypes.FieldSlot slot, int xPos, int yPos)
-    {
-        var figure = Instantiate(figurePrefab, figuresRoot.transform, false);
+
+   public static FieldSlotWithPos GetFieldSlotWithPos(StrategoTypes.FigurePosition position)
+   {
+       var (x, y) = position.ToXandY();
+       return new FieldSlotWithPos(CurrentGame.GameField.Field[x, y], x, y);
+
+   }
 
 
-        var xPosDelta = xPos+(xPos*0.11f);
-        var zPosDelta = yPos+(yPos*0.2f);
+    public static FieldSlotWithPos GetFieldSlotWithPos(int x, int y)
+   {
+       return new FieldSlotWithPos(CurrentGame.GameField.Field[x, y],x,y);
 
-        var figurePosition = new Vector3(bottomLeftCorner.transform.position.x+xPosDelta, bottomLeftCorner.transform.position.y, bottomLeftCorner.transform.position.z+zPosDelta);
-
-        figure.transform.position = figurePosition;
-        figure.GetComponent<Figure>().Setup(slot,xPos,yPos);
-
-    }
-
+   }
+  
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        FigurePrefab = figurePrefab;
+
         SetupCurrentGame(StrategoLogic.StartPredefinedGame());
     }
 
@@ -85,25 +85,7 @@ public class BoardLogic : MonoBehaviour, IPointerClickHandler
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        //if(CurrentSelectedFigure==null)
-        //    return;
-
-
-        //var from = CurrentSelectedFigure.Position;
-        //var intent = new StrategoTypes.MoveIntent(StrategoTypes.Player.Blue, from, from);
-        //var moveResult=StrategoLogic.MakeMove(CurrentGame, intent);
-
-
         
-        //if (moveResult.IsOk)
-        //{
-        //    Log(moveResult.ResultValue.ToString());
-        //    SetupCurrentGame(moveResult.ResultValue.GameInfo);
-        //}
-        //else
-        //{
-        //    Log(moveResult.ErrorValue.ToString());
-        //}
 
 
 
@@ -111,7 +93,6 @@ public class BoardLogic : MonoBehaviour, IPointerClickHandler
 
     private void SetupCurrentGame(StrategoTypes.GameInformation newInfo)
     {
-        CurrentSelectedFigure = null;
         CurrentGame = newInfo;
         RepaintFigures();
         
