@@ -15,7 +15,7 @@ let (>!) m f  =
   match m with
   | Error x -> 
      Error x
-  | Ok x -> Ok (f x)
+  | Ok x -> f x
  
 
 let (>!!) m f  =

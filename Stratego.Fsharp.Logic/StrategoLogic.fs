@@ -12,6 +12,9 @@ module StrategoLogic =
   Rank :FigureRank
  }
 
+
+ 
+
  let private config = [
                 {Rank=Flag;Count=1};
                 {Rank=Marshal;Count=1};
@@ -54,40 +57,57 @@ module StrategoLogic =
 
   field
 
+ 
+ let CreateEmptyField() =   
+   let emptyGen=Seq.map (fun _-> Empty)   
+   let (maxSizeX,maxSizeY) = gameRules.FieldSize
+   Seq.map (fun _-> emptyGen [1..maxSizeX]) [1..maxSizeY] |> array2D  
+ 
+
+ let StartPredefinedGame() =   
   
+  let field=CreateEmptyField()
+
+  field.[0,0] <- Figure ({Rank= Flag; Owner=Blue})
+  field.[1,0] <- Figure ({Rank= Scout; Owner=Blue})
+  field.[2,0] <- Figure ({Rank= Spy; Owner=Blue})
+  field.[3,0] <- Figure ({Rank= Colonel; Owner=Blue})
+  field.[4,0] <- Figure ({Rank= Mine; Owner=Blue})
+  field.[5,0] <- Figure ({Rank= Miner; Owner=Blue})
+  field.[9,9] <- Figure ({Rank= Scout; Owner=Blue})
+  
+  field.[2,3] <- Obstacle
+  field.[2,4] <- Obstacle
+  field.[3,3] <- Obstacle
+  field.[3,4] <- Obstacle
+
+  field.[6,3] <- Obstacle
+  field.[6,4] <- Obstacle
+  field.[7,3] <- Obstacle
+  field.[7,4] <- Obstacle
 
 
- let StartNewGame() = 
-  let figureArray = 
-     
-   array2D [            
-             [
-               Figure {Owner= Blue; Rank=Spy }
-               Figure {Owner= Blue; Rank=Flag }
-               Empty;
-               Obstacle;
-             ];              
-             [
-                 Figure {Owner= Red; Rank=Spy }
-                 Empty
-                 Figure {Owner= Red; Rank=Flag }
-                 Empty
-             ]; 
 
-           ]           
-  {CurrentPlayer= gameRules.StartPlayer; GameField = {Field=figureArray}}
+
+  field.[0,9] <- Figure ({Rank= Flag; Owner=Red})
+  field.[1,9] <- Figure ({Rank= Scout; Owner=Red})
+  field.[2,9] <- Figure ({Rank= Spy; Owner=Red})
+  field.[3,9] <- Figure ({Rank= Colonel; Owner=Red})
+  field.[4,9] <- Figure ({Rank= Mine; Owner=Red})
+  field.[5,9] <- Figure ({Rank= Miner; Owner=Red})
+             
+  
+  {CurrentPlayer= gameRules.StartPlayer; GameField = {Field=field}}
  
  
     
- let getFigure (slots : FieldSlot[,]) (position:FigurePosition) =  
+ let private getFigure (slots : FieldSlot[,]) (position:FigurePosition) =  
   let (x,y) = position.Get  
   match slots.[x,y] with
   | Figure f ->Some f
   | _ -> None
 
-
-
-
+   
 
   
  let private getFrontBackLeftRightMove (position:FigurePosition) =
@@ -104,26 +124,44 @@ module StrategoLogic =
   }
 
  
- let private getLineMove (slots:FieldSlot[,]) (position:FigurePosition) =
+ let private getMovesForScout (slots:FieldSlot[,]) (position:FigurePosition) =
   
   let fieldSizeX,fieldSizeY= gameRules.FieldSize
-  let (x,y)= position.Get   
+  let (currentX,currentY)= position.Get   
   
-  let xToRight=[x..fieldSizeX]
-  let xToLeft=[x..0]
-  
-  //xToRight while they can be created and ONLY empty in slots for that position -> add to seq
-  //xToLeft  while they can be created and ONLY empty in slots for that position -> add to seq
-  
+  let allPossibleXToEnd=[currentX+1..fieldSizeX]
+  let allPossibleXToStart=[currentX-1..-1..0]
 
 
-  seq {   
-   
-   
+  let allPossibleYToTop=   [currentY+1..fieldSizeY] 
+  let allPossibleYToBottom=[currentY-1..-1..0] 
 
-   let generatedMoves=[  
-   ]  
-   yield! Seq.collect (fun x-> Option.toList x) generatedMoves   
+  
+  let owner = match slots.[currentX,currentY] with
+               | Figure f -> Some f.Owner
+               | _ -> None
+  
+     
+
+  let xFunc = fun localX -> FigurePosition.Create(localX,currentY)
+  let yFunc = fun localY -> FigurePosition.Create(currentX,localY)
+  
+  let moves xOrY seq  = Seq.map (fun x-> xOrY x) seq
+                     |> Seq.collect (fun o -> Option.toList o)
+                     |> Seq.takeWhile (fun (t : FigurePosition)->
+                      let (nx,ny) = t.Get
+                      match slots.[nx,ny] with 
+                       | Empty -> true
+                       | Figure f when owner.IsSome && f.Owner<> owner.Value -> true
+                       | _ -> false
+                       )
+  
+  seq {
+  yield! moves xFunc allPossibleXToEnd
+  yield! moves xFunc allPossibleXToStart
+
+  yield! moves yFunc allPossibleYToTop
+  yield! moves yFunc allPossibleYToBottom   
   }
 
 
@@ -136,7 +174,7 @@ module StrategoLogic =
   match (slots.[x,y]) with
    | Figure movingFigure -> 
         match rule with 
-         | LineMove -> Ok(getLineMove slots position)
+         | LineMove -> Ok(getMovesForScout slots position)
          | AlwaysStand -> Ok (Seq.empty)
          | ForwardBackRightLeft  -> Ok(seq{         
           let fbrlPos= getFrontBackLeftRightMove position                    
@@ -178,12 +216,7 @@ module StrategoLogic =
           
  
  
- let check validMoves moveIntent= 
-  if Seq.contains moveIntent.MoveTo validMoves  then
-   Ok true
-  else
-   Error NoFigureToMove
- 
+
  
  let private (|SourceStronger|SourceWeaker|SamePower|) (source: Figure,destination:Figure) =   
   
@@ -200,9 +233,10 @@ module StrategoLogic =
 
  let private moveFigure (slots : FieldSlot[,])  moveIntent sourceFigure =   
   let (x,y) = moveIntent.MoveTo.Get  
+    
   let turnInfo ={OldPosition= moveIntent.MovingFrom; NewPosition=moveIntent.MoveTo };
-  match slots.[x,y] with
   
+  match slots.[x,y] with  
   | Empty  -> Ok (JustMoveCase turnInfo )  
   | Figure destinationFigure -> match (sourceFigure,destinationFigure) with 
                                 | SourceStronger -> Ok (DeathCase(turnInfo, IAmKiller , destinationFigure.Rank))
@@ -211,7 +245,7 @@ module StrategoLogic =
   | _ -> Error NoFigureToMove
   
  
- let GetPlayerFigure currentPlayer slots position =   
+ let private GetPlayerFigure currentPlayer slots position =   
   let ownFigure = getFigure slots position
   match ownFigure with 
   | Some figure when figure.Owner <> currentPlayer-> Error CurrentPlayerError
@@ -243,18 +277,28 @@ module StrategoLogic =
   let turnInfo = {GameInfo = newDoska; TurnInfo= turnInfo}
   Ok(turnInfo)
 
+ 
+ 
+ 
+ let private validateMoveIntent moveIntent validMoves= 
+   if Seq.contains moveIntent.MoveTo validMoves  then
+    Ok true
+   else
+    Error NoFigureToMove
   
 
- let MakeMove (gameInfo : GameInformation) (moveIntent:MoveIntent) =          
-          
+ let MakeMove (gameInfo : GameInformation) (moveIntent:MoveIntent) =                    
+  
   let slots = gameInfo.GameField.Field   
   let getFigure = GetPlayerFigure gameInfo.CurrentPlayer slots moveIntent.MovingFrom 
   let moveFigure = moveFigure slots moveIntent
-  let validateMove = CalculateAvailableMoves slots moveIntent.MovingFrom    
-  let updateGameInfo = updateGameInfo  gameInfo moveIntent
+  let getAvailableMoves = CalculateAvailableMoves slots moveIntent.MovingFrom    
+  let updateGameInfo = updateGameInfo  gameInfo moveIntent  
+  let _validate= validateMoveIntent moveIntent  
+
+  getAvailableMoves >! _validate >!! getFigure >>= moveFigure >>= updateGameInfo
    
-  
-  validateMove >!! getFigure >>= moveFigure >>= updateGameInfo
+
 
  
   

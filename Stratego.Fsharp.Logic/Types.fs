@@ -1,5 +1,6 @@
 module StrategoTypes 
-  
+ open System.Runtime.InteropServices
+
  type Player = Red | Blue
  
  type TurnErrorInfo = NotImplemented | CurrentPlayerError | NoFigureToMove | ObstaclesCantMove | PositionOutOfBounds | NoFigureMovementInformation
@@ -47,6 +48,14 @@ module StrategoTypes
  | Empty 
  | Figure of Figure
  | Obstacle
+ with 
+  member this.TryGetFigure( [<Out>] result : Figure byref ) =
+   match this with
+   | Figure f ->
+       result <-f
+       true
+   | _ -> false
+ 
 
  type GameField =  {
   Field : FieldSlot[,]   
@@ -74,7 +83,14 @@ module StrategoTypes
  type TurnSuccessInfo =  
  |JustMoveCase of MoveInfo
  |DeathCase of MoveInfo * KillInfo * FigureRank
- 
+  member this.TryGetJustMoveCase( [<Out>] result : MoveInfo byref ) =
+   match this with
+   | JustMoveCase f ->
+       result <-f
+       true
+   | _ -> false
+      
+
  
  type ExternalTurnResult = {
   GameInfo : GameInformation 
