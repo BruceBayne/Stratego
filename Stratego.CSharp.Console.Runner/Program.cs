@@ -9,7 +9,9 @@ namespace Stratego.CSharp.Console.Runner
     {
         private static void Main(string[] args)
         {
-            var x = FieldGenerator.StartPredefinedGame();
+
+            var board = FieldGenerator.CreateRandomBoard(40);
+            var x = FieldGenerator.StartGame(board);
 
 
             

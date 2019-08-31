@@ -10,14 +10,17 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Extensions\array2d.fs" />
+        <Compile Include="Extensions\List.fs" />
+        <Compile Include="Extensions\Seq.fs" />
         <Compile Include="Option.fs" />
         <Compile Include="Utils.fs" />
-        <Compile Include="List.fs" />
         <Compile Include="Types.fs" />
         <Compile Include="Game.fs" />
         <Compile Include="Some.fs" />
         <Compile Include="StrategoLogic.fs" />
         <Compile Include="FieldGenerator.fs" />
+        <Compile Include="Ai\RandomAi.fs" />
     </ItemGroup>
 
 </Project>

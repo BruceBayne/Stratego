@@ -73,8 +73,8 @@ public class BoardLogic : MonoBehaviour, IPointerClickHandler
     void Start()
     {
         FigurePrefab = figurePrefab;
-
-        SetupCurrentGame(StrategoLogic.StartPredefinedGame());
+        var board=FieldGenerator.CreateRandomBoard(40);
+        SetupCurrentGame(FieldGenerator.StartGame(board));
     }
 
     // Update is called once per frame

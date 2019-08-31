@@ -3,49 +3,48 @@
 open StrategoTypes
 open Game
 
-let CreateEmptyField() =   
-  let emptyGen=Seq.map (fun _-> Empty)   
-  let (maxSizeX,maxSizeY) = GameRules.FieldSize
-  Seq.map (fun _-> emptyGen [1..maxSizeX]) [1..maxSizeY] |> array2D  
-
-let CreateRandomBoard maxFigures=
- let field = CreateEmptyField()
+let private cellGenerator maxX minY maxY = seq { 
+     for x in [0..maxX] do
+      for y in [minY..maxY] do
+       yield (x,y)    
+     }
  
-
- let createFiguresForPlayer player = Seq.collect (fun f->  [for _ in 0..f.Count -> {Owner=player; Rank=f.Rank}]) config
-
- let blueFigures= createFiguresForPlayer Player.Blue |> List.shuffleSeq
- let redFigures= createFiguresForPlayer Player.Red |> List.shuffleSeq
+let private CreateEmptyField() =   
+ let emptyGen=Seq.map (fun _-> Empty)   
  let (maxSizeX,maxSizeY) = GameRules.FieldSize
+ Seq.map (fun _-> emptyGen [1..maxSizeX]) [1..maxSizeY] |> array2D  
+
+
+
+let StartGame gameField = 
+ {CurrentPlayer= GameRules.StartPlayer; GameField = {Field=gameField}}
+
+let CreateRandomBoard maxFigures =
+ let field = CreateEmptyField()
+ let (maxSizeX,_) = GameRules.FieldSize
+ let horizontalGenerator = cellGenerator maxSizeX
   
- 
- 
- Seq.indexed redFigures |> Seq.iter (fun (index,figure)-> field.[index % 10,1] <- Figure {Owner= Red; Rank=Colonel}) 
-
- 
-
- 0
-
-
-
-let private randomRefillSlots : FieldSlot[,] =   
- let (x,y)=GameRules.FieldSize;
- let field=Array2D.create x y (Empty)    
+ let GenerateFigures player allowedPositions= 
+  let figures= Seq.collect (fun f->  [for _ in 1..f.Count -> {Owner=player; Rank=f.Rank}]) config                
+               |> List.shuffleSeq
+               |> Seq.take maxFigures              
   
- Seq.iter (fun x-> 
-                   field.[0,1] <- Figure ({Rank=x.Rank; Owner= Red})
-                   ()) config
-
+  Seq.iter (fun t->
+                    let (x,y),figure = t
+                    field.[x,y] <- Figure figure
+                    ()) <|  Seq.zip allowedPositions figures  
+                    |> ignore
+                      
+ GenerateFigures Player.Blue (horizontalGenerator 0 3)
+ GenerateFigures Player.Red (horizontalGenerator 6 9)
  field
-   
 
-
-
-
-let StartPredefinedGame() =   
  
- let field=CreateEmptyField()
 
+
+let CreatePredefinedBoard() =   
+
+ let field=CreateEmptyField()
  field.[0,0] <- Figure ({Rank= Flag; Owner=Blue})
  field.[1,0] <- Figure ({Rank= Scout; Owner=Blue})
  field.[2,0] <- Figure ({Rank= Spy; Owner=Blue})
@@ -76,6 +75,5 @@ let StartPredefinedGame() =
  field.[3,9] <- Figure ({Rank= Colonel; Owner=Red})
  field.[4,9] <- Figure ({Rank= Mine; Owner=Red})
  field.[5,9] <- Figure ({Rank= Miner; Owner=Red})
-            
- 
- {CurrentPlayer= GameRules.StartPlayer; GameField = {Field=field}}
+             
+ field

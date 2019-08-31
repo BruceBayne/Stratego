@@ -11,7 +11,6 @@ type  initialGameConfig =  {
 let internal config = [
                {Rank=Flag;Count=1};
                {Rank=Marshal;Count=1};
-               {Rank=Marshal;Count=1};
                {Rank=General;Count=1};
                {Rank=Colonel;Count=2};
                {Rank=Major;Count=3};
@@ -19,7 +18,7 @@ let internal config = [
                {Rank=Leitenant;Count=4};
                {Rank=Sergeant;Count=4};
                {Rank=Scout;Count=8};
-               {Rank=Miner;Count=8};
+               {Rank=Miner;Count=5};
                {Rank=Spy;Count=1};
                {Rank=Mine;Count=6};
              ]

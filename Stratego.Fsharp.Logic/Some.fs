@@ -3,7 +3,8 @@ open StrategoTypes
 
   
 //let MakeMove (x:int,y:int) direction = 
- 
+let foo2 = seq { yield 0; } 
+let foo = seq { yield 1; yield! foo2 } 
  
 // 0
  
